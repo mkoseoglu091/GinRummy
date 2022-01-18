@@ -44,9 +44,7 @@ function _draw()
  print("player2:000", 75, 18, 0)
  
  --_, _, _, d = gin_knock_checker({"4s", "5s", "6s", "4h", "4d" ,"8d", "ac", "ad", "ac", "kd"}) 
- print(player1.action2,0,0)
- print(player1.on_level,4,0)
- print(player1.gin_available, 8,0)
+ 
 end
 
 -->8
@@ -60,21 +58,27 @@ function init_deck()
  finish_score = 100
  discard = {} -- discard pile
  
+ 
+ 
  -- player variables
  player1 = {}
- player2 = {}
  player1.hand = {}
- player2.hand = {}
  player1.score = 0
- player2.score = 0
+ player1.turn = true -- player1 to play next
  player1.action = 1
- player1.action2 = 1
  player1.selected = false
- player1.selected2 = false
+ player1.discard_selection = ""
  player1.upper_level_allowed = true
  player1.on_level = 1
  player1.knock_available = false
  player1.gin_available = false
+ 
+ 
+ -- player2 variables
+ player2 = {}
+ player2.hand = {}
+ player2.score = 0
+ player2.turn = false
  
  -- settings
  four_color = true
@@ -246,41 +250,148 @@ end
 
 -- select an action
 function action_select()
- if player1.on_level == 1 then
+ 
+ -- player can only rearrange cards
+ if not player1.turn then 
+  player1.on_level = 1
   if btnp(0) and not player1.selected then --⬅️
    player1.action -= 1
    if player1.action <= 0 then player1.action = #player1.hand end
- 
   elseif btnp(1) and not player1.selected then --➡️
    player1.action += 1
-   if player1.action >= #player1.hand+1 then player1.action = 1 end
- 
+   if player1.action >= #player1.hand+1 then player1.action = 1 end 
   elseif btnp(5) then --❎
    player1.selected = not player1.selected
- 
   elseif btnp(0) and player1.selected and player1.action > 1 then
    --move selected card change order
    player1.action -= 1
    player1.hand[player1.action+1], player1.hand[player1.action] = player1.hand[player1.action], player1.hand[player1.action+1] 
-
   elseif btnp(1) and player1.selected and player1.action < #player1.hand then
    --move selected card change order
    player1.action += 1
    player1.hand[player1.action], player1.hand[player1.action-1] = player1.hand[player1.action-1], player1.hand[player1.action]
-  elseif btnp(2) then
-   if player1.upper_level_allowed then
+  end
+
+	-- player1's turn and has not drawn a card on level1
+ elseif player1.turn and #player1.hand == 10 then
+  
+  if player1.on_level == 1 then
+   if btnp(0) and not player1.selected then --⬅️
+    player1.action -= 1
+    if player1.action <= 0 then player1.action = #player1.hand end
+   elseif btnp(1) and not player1.selected then --➡️
+    player1.action += 1
+    if player1.action >= #player1.hand+1 then player1.action = 1 end
+   elseif btnp(5) then --❎
+    player1.selected = not player1.selected
+   elseif btnp(0) and player1.selected and player1.action > 1 then
+    --move selected card change order
+    player1.action -= 1
+    player1.hand[player1.action+1], player1.hand[player1.action] = player1.hand[player1.action], player1.hand[player1.action+1] 
+   elseif btnp(1) and player1.selected and player1.action < #player1.hand then
+    --move selected card change order
+    player1.action += 1
+    player1.hand[player1.action], player1.hand[player1.action-1] = player1.hand[player1.action-1], player1.hand[player1.action]
+   elseif btn(2) and not player1.selected then
+    -- select top row cards
+    player1.action = 1
+    player1.selected = false
     player1.on_level = 2
    end
+  
+  -- if player1's turn, player1 has 10 cards and on level2
+  elseif player1.on_level == 2 then
+   -- only two options to choose from
+   if btnp(0) and not player1.selected then
+    player1.action = 1
+   elseif btnp(1) and not player1.selected then
+    player1.action = 2
+   -- go back to lower level
+   elseif btnp(3) and not player1.selected then
+    player1.action = 1
+    player1.selected = false
+    player1.on_level = 1
+   elseif btnp(5) then
+    if player1.action == 1 then --player has picked up the top discard card
+     add(player1.hand, discard[#discard])
+     player1.selected = false
+     player1.action = 1
+     player1.on_level = 1 -- pick which card to discard
+    elseif player1.action == 2 then
+     add(player1.hand, draw_card()) 
+     player1.selected = false
+     player1.action = 1
+     player1.on_level = 1 -- pick which card to discard
+    end
+   end 
+   player1.discard_selection = ""
   end
- elseif player1.on_level == 2 then
-  if btnp(3) then
+ 
+ -- its still player1's turn, but player has drawn a card, has 11 cards, has to pick a card for discard
+ elseif player1.turn and #player1.hand == 11 then
+  
+  -- discard card not yet selected
+  if player1.discard_selection == "" then
    player1.on_level = 1
-  elseif btnp(0) and player1.action2 > 1 then
-   player1.action2 -= 1
-  elseif btnp(1) and player1.action < 5 then
-   player1.action2 += 1
+   
+   -- rearrangement options
+   if btnp(0) and not player1.selected then --⬅️
+    player1.action -= 1
+    if player1.action <= 0 then player1.action = #player1.hand end
+   elseif btnp(1) and not player1.selected then --➡️
+    player1.action += 1
+    if player1.action >= #player1.hand+1 then player1.action = 1 end 
+   elseif btnp(5) then --❎
+    player1.selected = not player1.selected
+   elseif btnp(0) and player1.selected and player1.action > 1 then
+    --move selected card change order
+    player1.action -= 1
+    player1.hand[player1.action+1], player1.hand[player1.action] = player1.hand[player1.action], player1.hand[player1.action+1] 
+   elseif btnp(1) and player1.selected and player1.action < #player1.hand then
+    --move selected card change order
+    player1.action += 1
+    player1.hand[player1.action], player1.hand[player1.action-1] = player1.hand[player1.action-1], player1.hand[player1.action]
+   
+   -- select the card for discarding
+   elseif btnp(2) and player1.selected then
+    -- card picked for discard
+    player1.discard_selection = player1.hand[player1.action]
+    player1.action = 1
+    player1.selected = false
+    player1.on_level = 3
+   end
+  
+  -- there is a card selected for discarding
+  else
+   player1.on_level = 3
+   -- player has 3 options, click knock/gin, click done, take back card
+   if btnp(3) then
+    player1.discard_selection = ""
+    player1.action = 1
+    player1.selected = false
+    player1.on_level = 1
+   elseif btnp(0) and not player1.selected then
+    player1.action = 1
+   elseif btnp(1) and not player1.selected then
+    player1.action = 2
+   elseif btnp(5) then
+    if player1.action == 1 then
+     -- player attempts knock or gin
+     -- game end scoring
+    elseif player1.action == 2 then
+     -- player is done for the round
+     del(player1.hand, player1.discard_selection)
+     add(discard, player1.discard_selection)
+     player1.discard_selection = ""
+     player1.action = 1
+     player1.selected = false
+     player1.on_level = 1
+     player1.turn = false
+    end
+   end
+  
   end
- end 
+ end
 end
 -->8
 --deadwood calculator
