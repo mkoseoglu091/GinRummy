@@ -11,13 +11,15 @@ function _init()
  shuffle(deck)
  shuffle(deck)
  shuffle(deck)
+ shuffle(deck)
+ shuffle(deck)
  deal(deck)
 end
 
 
 -- update
 function _update()
-
+ action_select()
 end
 
 
@@ -25,9 +27,12 @@ end
 function _draw()
  cls()
  map()
+
  -- draw hand
  draw_player_hand()
  
+ -- draw center cards
+ draw_mid_cards()
  
  -- oponent hand draw
  for i=1, 10 do
@@ -37,13 +42,14 @@ function _draw()
  -- draw oponent
  spr(204, 19, 10, 4, 4)
  
- -- draw center cards and buttons
- spr(64, 74, 44, 3, 4)
- spr(69, 97, 44, 3, 4)
- spr(8, 6, 75, 5, 1)
- spr(14, 50, 75, 2, 1)
- print("gin", 52, 77, 0)
+
+ --knock button
+ spr(8, 6, 75, 5, 1) 
  print("knock 10", 10, 77, 0)
+ --gin button
+ spr(14, 50, 75, 2, 1) 
+ print("gin", 52, 77, 0)
+ -- scores
  print("player1:100", 75, 10, 0)
  print("player2:000", 75, 18, 0)
  
@@ -69,6 +75,8 @@ function init_deck()
  player2.hand = {}
  player1.score = 0
  player2.score = 0
+ player1.action = 1
+ player1.selected = false
  
  -- settings
  four_color = true
@@ -81,7 +89,7 @@ function find_sprite(card)
  local value = sub(card, 1, -2)
  local suit_sp = 0
  local value_sp = 0
- local ace_start = 0
+ local ace_start = 128
  
  if suit == "s" then
   suit_sp = 16
@@ -97,7 +105,7 @@ function find_sprite(card)
    suit_sp = 18
    ace_start = 144
   end
- else
+ elseif suit == "c" then
   if four_color then
    suit_sp = 21
    ace_start = 160
@@ -106,7 +114,6 @@ function find_sprite(card)
    ace_start = 128
   end
  end
- 
  if value == "a" then
   value_sp = ace_start
  elseif value == "j" then
@@ -154,8 +161,12 @@ end
 function draw_player_hand()
  for i=1, #player1.hand do
   card_val, card_suit = find_sprite(player1.hand[i])
- 	if i!= 6 then -- selected card index
+ 	if i!= player1.action then -- selected card index
    spr(64, 3 + (i-1)*10, 92, 3, 4)
+   spr(card_suit, 5 + (i-1)*10, 102)
+   spr(card_val, 5 + (i-1)*10, 93)
+  elseif i == player1.action and not player1.selected then
+  spr(72, 3 + (i-1)*10, 92, 3, 4)
    spr(card_suit, 5 + (i-1)*10, 102)
    spr(card_val, 5 + (i-1)*10, 93)
   else
@@ -163,6 +174,53 @@ function draw_player_hand()
    spr(card_suit, 5 + (i-1)*10, 97)
    spr(card_val, 5 + (i-1)*10, 88)
   end
+  if i == #player1.hand and player1.action != #player1.hand or not player1.selected then
+   spr(card_suit,5 + (i-1)*10 + 9, 97 + 9, 1, 1, true, true)
+   spr(card_val, 5 + (i-1)*10 + 9, 88 + 27, 1, 1, true ,true)
+  end
+  if i == #player1.hand and player1.selected and player1.action == #player1.hand then
+   spr(card_suit,5 + (i-1)*10 + 9, 97 + 5, 1, 1, true, true)
+   spr(card_val, 5 + (i-1)*10 + 9, 88 + 22, 1, 1, true ,true)
+  end
+ end
+end
+
+
+-- draw middle cards
+function draw_mid_cards()
+ discard_val, discard_suit = find_sprite(discard[#discard])
+ spr(64, 74, 44, 3, 4)
+ spr(discard_suit,76, 54)
+ spr(discard_val, 76, 45)
+ spr(discard_suit,85, 58, 1, 1, true, true)
+ spr(discard_val, 85, 67, 1, 1, true ,true)
+ if #deck > 0 then
+  spr(69, 97, 44, 3, 4)
+ end
+end
+
+
+function action_select()
+ if btnp(0) and not player1.selected then --⬅️
+  player1.action -= 1
+  if player1.action <= 0 then player1.action = #player1.hand end
+ 
+ elseif btnp(1) and not player1.selected then --➡️
+  player1.action += 1
+  if player1.action >= #player1.hand+1 then player1.action = 1 end
+ 
+ elseif btnp(5) then --❎
+   player1.selected = not player1.selected
+ 
+ elseif btnp(0) and player1.selected and player1.action > 1 then
+  --move selected card change order
+  player1.action -= 1
+  player1.hand[player1.action+1], player1.hand[player1.action] = player1.hand[player1.action], player1.hand[player1.action+1] 
+
+ elseif btnp(1) and player1.selected and player1.action < #player1.hand then
+  --move selected card change order
+  player1.action += 1
+  player1.hand[player1.action], player1.hand[player1.action-1] = player1.hand[player1.action-1], player1.hand[player1.action]
  end
 end
 -->8
