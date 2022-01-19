@@ -57,10 +57,9 @@ function init_deck()
               "ad", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "10d", "jd", "qd", "kd",
               "ah", "2h", "3h", "4h", "5h", "6h", "7h", "8h", "9h", "10h", "jh", "qh", "kh",
               "as", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s", "10s", "js", "qs", "ks"}
+ 
  finish_score = 100
  discard = {} -- discard pile
- 
- 
  
  -- player variables
  player1 = {}
@@ -75,7 +74,6 @@ function init_deck()
  player1.knock_available = false
  player1.gin_available = false
  
- 
  -- player2 variables
  player2 = {}
  player2.hand = {}
@@ -86,6 +84,7 @@ function init_deck()
  four_color = true
 end
 
+
 -- initialise new game
 function init_newgame()
  init_deck()
@@ -94,52 +93,6 @@ function init_newgame()
  end
  deal(deck)
 end
-
--- finds the sprite that needs to be drawn from the card string
-function find_sprite(card)
- local suit = sub(card, -1)
- local value = sub(card, 1, -2)
- local suit_sp = 0
- local value_sp = 0
- local ace_start = 128
- 
- if suit == "s" then
-  suit_sp = 16
-  ace_start = 128
- elseif suit == "h" then
-  suit_sp = 17
-  ace_start = 144
- elseif suit == "d" then
-  if four_color then
-   suit_sp = 20
-   ace_start = 176
-  else
-   suit_sp = 18
-   ace_start = 144
-  end
- elseif suit == "c" then
-  if four_color then
-   suit_sp = 21
-   ace_start = 160
-  else
-   suit_sp = 19
-   ace_start = 128
-  end
- end
- if value == "a" then
-  value_sp = ace_start
- elseif value == "j" then
-  value_sp = ace_start+10
- elseif value == "q" then
-  value_sp = ace_start+11
- elseif value == "k" then
-  value_sp = ace_start+12
- else
-  value_sp = ace_start + tonum(value) - 1
- end
- return value_sp, suit_sp
-end
-
 
 -- shuffle deck
 function shuffle(deck)
@@ -150,134 +103,6 @@ function shuffle(deck)
 end
 
 
--- draw card
-function draw_card()
- return del(deck, deck[1])
-end
-
--- deal cards
-function deal()
- for i=1, 20 do
-  if i%2==0 then add(player1.hand, draw_card()) end
-  if i%2==1 then add(player2.hand, draw_card()) end
- end
- add(discard, draw_card())
-end
-
-
--- draw player hand
-function draw_player_hand()
- for i=1, #player1.hand do
-  card_val, card_suit = find_sprite(player1.hand[i])
- 	if i!= player1.action or player1.on_level == 2 then -- selected card index
-   spr(64, 3 + (i-1)*10, 92, 3, 4)
-   spr(card_suit, 5 + (i-1)*10, 102)
-   spr(card_val, 5 + (i-1)*10, 93)
-  elseif i == player1.action and not player1.selected and player1.on_level == 1 then
-   spr(72, 3 + (i-1)*10, 92, 3, 4)
-   spr(card_suit, 5 + (i-1)*10, 102)
-   spr(card_val, 5 + (i-1)*10, 93)
-  elseif i == player1.action and player1.on_level == 1 and player1.selected then
-   spr(72, 3 + (i-1)*10, 87, 3, 4)
-   spr(card_suit, 5 + (i-1)*10, 97)
-   spr(card_val, 5 + (i-1)*10, 88)
-  end
-  if i == #player1.hand and player1.action != #player1.hand or not player1.selected then
-   spr(card_suit,5 + (i-1)*10 + 9, 97 + 9, 1, 1, true, true)
-   spr(card_val, 5 + (i-1)*10 + 9, 88 + 27, 1, 1, true ,true)
-  end
-  if i == #player1.hand and player1.selected and player1.action == #player1.hand then
-   spr(card_suit,5 + (i-1)*10 + 9, 97 + 5, 1, 1, true, true)
-   spr(card_val, 5 + (i-1)*10 + 9, 88 + 22, 1, 1, true ,true)
-  end
- end
-end
-
-
--- draw opponent hand
-function draw_opponent_hand()
- for i=1, 10 do
-  spr(78, 8 + (i-1)*5, 48, 2, 2)
- end
-end
-
-
--- draw middle cards
-function draw_mid_cards()
- if #discard > 0 then
-  discard_val, discard_suit = find_sprite(discard[#discard])
-  if player1.on_level == 2 and player1.action == 1 then
-   spr(72, 72, 40, 3, 4)
-  else
-   spr(64, 72, 40, 3, 4)
-  end
-  spr(discard_suit,74, 50)
-  spr(discard_val, 74, 41)
-  spr(discard_suit,83, 54, 1, 1, true, true)
-  spr(discard_val, 83, 63, 1, 1, true ,true)
- end
- if #deck > 0 then
-  if player1.on_level == 2 and player1.action == 2 then
-   spr(75, 96, 40, 3, 4)
-  else 
-   spr(69, 96, 40, 3, 4)
-  end
- end
-end
-
-
--- draw knock and gin buttons
-function draw_knock_gin_button()
- -- knock/gin  button
- if (player1.gin_available and player1.action != 1 and player1.on_level == 3) or (player1.gin_available and player1.on_level != 3)  then
-  spr(44, 6, 72, 4, 1)
-  
- elseif player1.gin_available and player1.on_level == 3 and player1.action2 == 1 then
-  spr(60, 6, 72, 4, 1)
- 
- elseif (player1.knock_available and player1.action != 1 and player.on_level == 3) or (player1.knock_available and player1.on_level != 3)  then
-  spr(40, 6, 72, 4, 1) 
- 
- elseif player1.knock_available and player1.on_level == 3 and player1.action2 == 1 then
-  spr(56, 6, 72, 4, 1) 
- 
- elseif not player1.knock_available and player1.on_level != 3 then
-  spr(8, 6, 72, 4, 1) 
- 
- elseif (not player1.knock_available and player1.on_level == 3 and player1.action == 1) or (not player1.gin_available and player1.on_level == 3 and player1.action == 1) then
-  spr(24, 6, 72, 4, 1) 
- end
- 
- -- print label
- if player1.gin_available then
-  print("gin", 16, 74, 0)
- else
-  print("knock", 12, 74, 0)
- end
-end
-
-
--- draw end turn button
-function draw_end_turn_button()
- if player1.discard_selection == "" and player1.on_level != 3 then
-  spr(8, 42, 72, 2, 1)
-  spr(11, 58, 72)
- elseif player1.discard_selection == "" and player1.on_level == 3 and player1.action != 2 then
-  spr(8, 42, 72, 2, 1)
-  spr(11, 58, 72)
- elseif player1.discard_selection == "" and player1.on_level == 3 and player1.action == 2 then
-  spr(24, 42, 72, 2, 1)
-  spr(17, 58, 72)
- elseif (player1.discard_selection != "" and player1.on_level != 3) or (player1.discard_selection != "" and player1.on_level == 3 and player1.action != 2) then
-  spr(44, 42, 72, 2, 1)
-  spr(47, 58, 72)
- elseif player1.discard_selection != "" and player1.on_level == 3 and player1.action == 2 then
-  spr(60, 42, 72, 2, 1)
-  spr(63, 58, 72)
- end
- print("end", 48, 74)
-
-end
 
 
 -- select an action
@@ -766,6 +591,188 @@ function qsort(a,c,l,r)
 end
 
 
+
+-->8
+-- draw stuff
+
+-- finds the sprite that needs to be drawn from the card string
+function find_sprite(card)
+ local suit = sub(card, -1)
+ local value = sub(card, 1, -2)
+ local suit_sp = 0
+ local value_sp = 0
+ local ace_start = 128
+ 
+ if suit == "s" then
+  suit_sp = 16
+  ace_start = 128
+ elseif suit == "h" then
+  suit_sp = 17
+  ace_start = 144
+ elseif suit == "d" then
+  if four_color then
+   suit_sp = 20
+   ace_start = 176
+  else
+   suit_sp = 18
+   ace_start = 144
+  end
+ elseif suit == "c" then
+  if four_color then
+   suit_sp = 21
+   ace_start = 160
+  else
+   suit_sp = 19
+   ace_start = 128
+  end
+ end
+ if value == "a" then
+  value_sp = ace_start
+ elseif value == "j" then
+  value_sp = ace_start+10
+ elseif value == "q" then
+  value_sp = ace_start+11
+ elseif value == "k" then
+  value_sp = ace_start+12
+ else
+  value_sp = ace_start + tonum(value) - 1
+ end
+ return value_sp, suit_sp
+end
+
+
+
+-- draw card
+function draw_card()
+ return del(deck, deck[1])
+end
+
+-- deal cards
+function deal()
+ for i=1, 20 do
+  if i%2==0 then add(player1.hand, draw_card()) end
+  if i%2==1 then add(player2.hand, draw_card()) end
+ end
+ add(discard, draw_card())
+end
+
+
+-- draw player hand
+function draw_player_hand()
+ for i=1, #player1.hand do
+  card_val, card_suit = find_sprite(player1.hand[i])
+ 	if i!= player1.action or player1.on_level != 1 then -- selected card index
+   --normal draw
+   spr(64, 3 + (i-1)*10, 92, 3, 4)
+   spr(card_suit, 5 + (i-1)*10, 102)
+   spr(card_val, 5 + (i-1)*10, 93)
+   --upside down
+   spr(card_suit,5 + (i-1)*10 + 9, 97 + 9, 1, 1, true, true)
+   spr(card_val, 5 + (i-1)*10 + 9, 88 + 27, 1, 1, true ,true)
+
+  elseif i == player1.action and not player1.selected and player1.on_level == 1 then
+   --highlight draw
+   spr(72, 3 + (i-1)*10, 92, 3, 4)
+   spr(card_suit, 5 + (i-1)*10, 102)
+   spr(card_val, 5 + (i-1)*10, 93)
+  elseif i == player1.action and player1.on_level == 1 and player1.selected then
+   --raised draw
+   spr(72, 3 + (i-1)*10, 87, 3, 4)
+   spr(card_suit, 5 + (i-1)*10, 97)
+   spr(card_val, 5 + (i-1)*10, 88)
+   --upside down
+   spr(card_suit,5 + (i-1)*10 + 9, 97 + 5, 1, 1, true, true)
+   spr(card_val, 5 + (i-1)*10 + 9, 88 + 22, 1, 1, true ,true)
+  end
+  
+ end
+end
+
+
+-- draw opponent hand
+function draw_opponent_hand()
+ for i=1, 10 do
+  spr(78, 8 + (i-1)*5, 48, 2, 2)
+ end
+end
+
+
+-- draw middle cards
+function draw_mid_cards()
+ if #discard > 0 then
+  discard_val, discard_suit = find_sprite(discard[#discard])
+  if player1.on_level == 2 and player1.action == 1 then
+   spr(72, 72, 40, 3, 4)
+  else
+   spr(64, 72, 40, 3, 4)
+  end
+  spr(discard_suit,74, 50)
+  spr(discard_val, 74, 41)
+  spr(discard_suit,83, 54, 1, 1, true, true)
+  spr(discard_val, 83, 63, 1, 1, true ,true)
+ end
+ if #deck > 0 then
+  if player1.on_level == 2 and player1.action == 2 then
+   spr(75, 96, 40, 3, 4)
+  else 
+   spr(69, 96, 40, 3, 4)
+  end
+ end
+end
+
+
+-- draw knock and gin buttons
+function draw_knock_gin_button()
+ -- knock/gin  button
+ if (player1.gin_available and player1.action != 1 and player1.on_level == 3) or (player1.gin_available and player1.on_level != 3)  then
+  spr(44, 6, 72, 4, 1)
+  
+ elseif player1.gin_available and player1.on_level == 3 and player1.action2 == 1 then
+  spr(60, 6, 72, 4, 1)
+ 
+ elseif (player1.knock_available and player1.action != 1 and player.on_level == 3) or (player1.knock_available and player1.on_level != 3)  then
+  spr(40, 6, 72, 4, 1) 
+ 
+ elseif player1.knock_available and player1.on_level == 3 and player1.action2 == 1 then
+  spr(56, 6, 72, 4, 1) 
+ 
+ elseif not player1.knock_available and player1.on_level != 3 then
+  spr(8, 6, 72, 4, 1) 
+ 
+ elseif (not player1.knock_available and player1.on_level == 3 and player1.action == 1) or (not player1.gin_available and player1.on_level == 3 and player1.action == 1) then
+  spr(24, 6, 72, 4, 1) 
+ end
+ 
+ -- print label
+ if player1.gin_available then
+  print("gin", 16, 74, 0)
+ else
+  print("knock", 12, 74, 0)
+ end
+end
+
+
+-- draw end turn button
+function draw_end_turn_button()
+ if player1.discard_selection == "" and player1.on_level != 3 then
+  spr(8, 42, 72, 2, 1)
+  spr(11, 58, 72)
+ elseif player1.discard_selection == "" and player1.on_level == 3 and player1.action != 2 then
+  spr(8, 42, 72, 2, 1)
+  spr(11, 58, 72)
+ elseif player1.discard_selection == "" and player1.on_level == 3 and player1.action == 2 then
+  spr(24, 42, 72, 2, 1)
+  spr(17, 58, 72)
+ elseif (player1.discard_selection != "" and player1.on_level != 3) or (player1.discard_selection != "" and player1.on_level == 3 and player1.action != 2) then
+  spr(44, 42, 72, 2, 1)
+  spr(47, 58, 72)
+ elseif player1.discard_selection != "" and player1.on_level == 3 and player1.action == 2 then
+  spr(60, 42, 72, 2, 1)
+  spr(63, 58, 72)
+ end
+ print("end", 48, 74)
+
+end
 
 __gfx__
 00000000333333332222222299999999222222227777777722222333000000000077777777777777777777777777770000000000000000000000000000000000
