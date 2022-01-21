@@ -5,10 +5,8 @@ __lua__
 
 -- init
 function _init()
- poke(0x5f10+11, 128+11)
- poke(0x5f10+12, 128+12)
- init_newgame()
- menuitem(1, "4 color cards", function() four_color = not four_color end)
+ col_change()
+ init_game()
 end
 
 
@@ -35,6 +33,60 @@ end
 -- title
 
 -- game
+
+-- init game
+
+-- init new game
+function init_game()
+ finish_score = 100
+ player1 = {}
+ player2 = {}
+ player1.score = 0
+ player2.score = 0
+ init_round()
+end
+
+-- initialise new round
+function init_round()
+ init_deck()
+ for i=1,10 do
+  shuffle(deck)
+ end
+ deal(deck)
+end
+
+-- init deck
+function init_deck()
+
+ -- round init
+ deck = {"ac", "2c", "3c", "4c", "5c", "6c", "7c", "8c", "9c", "10c", "jc", "qc", "kc",
+              "ad", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "10d", "jd", "qd", "kd",
+              "ah", "2h", "3h", "4h", "5h", "6h", "7h", "8h", "9h", "10h", "jh", "qh", "kh",
+              "as", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s", "10s", "js", "qs", "ks"}
+ 
+ 
+ discard = {} -- discard pile
+ round_outcome = ""
+ 
+ -- player variables
+ player1.hand = {}
+ player1.turn = true -- player1 to play next
+ player1.action = 1
+ player1.selected = false
+ player1.discard_selection = ""
+ player1.upper_level_allowed = true
+ player1.on_level = 1
+ player1.knock_available = false
+ player1.gin_available = false
+ player1.knocker = nil
+ player1.current_deadwood = 100
+ 
+ -- player2 variables
+ player2.hand = {}
+ player2.wait_time = 0
+ player2.sp = 204
+ player2.phrase = "hmm.."
+end
 
 -- update game
 function update_game()
@@ -75,57 +127,14 @@ end
 
 -- tutorial
 -->8
--- core game
+-- deck helpers + player action
 
-function init_deck()
- -- game init
- finish_score = 100
-
- -- round init
- deck = {"ac", "2c", "3c", "4c", "5c", "6c", "7c", "8c", "9c", "10c", "jc", "qc", "kc",
-              "ad", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "10d", "jd", "qd", "kd",
-              "ah", "2h", "3h", "4h", "5h", "6h", "7h", "8h", "9h", "10h", "jh", "qh", "kh",
-              "as", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s", "10s", "js", "qs", "ks"}
- 
- 
- discard = {} -- discard pile
- round_outcome = ""
- 
- -- player variables
- player1 = {}
- player1.hand = {}
- player1.score = 0
- player1.turn = true -- player1 to play next
- player1.action = 1
- player1.selected = false
- player1.discard_selection = ""
- player1.upper_level_allowed = true
- player1.on_level = 1
- player1.knock_available = false
- player1.gin_available = false
- player1.knocker = nil
- player1.current_deadwood = 100
- 
- -- player2 variables
- player2 = {}
- player2.hand = {}
- player2.score = 0
- player2.wait_time = 0
- player2.sp = 204
- player2.phrase = "hmm.."
- 
- -- settings
+-- init color
+function col_change()
+ poke(0x5f10+11, 128+11)
+ poke(0x5f10+12, 128+12)
  four_color = true
-end
-
-
--- initialise new game
-function init_newgame()
- init_deck()
- for i=1,10 do
-  shuffle(deck)
- end
- deal(deck)
+ menuitem(1, "4 color cards", function() four_color = not four_color end)
 end
 
 -- shuffle deck
@@ -135,7 +144,6 @@ function shuffle(deck)
  deck[i],deck[rnd_card]=deck[rnd_card],deck[i]
  end
 end
-
 
 -- draw card
 function draw_card()
@@ -150,6 +158,8 @@ function deal()
  end
  add(discard, draw_card())
 end
+
+
 
 
 -- select an action
@@ -302,7 +312,6 @@ function action_select()
      player1.current_deadwood = 100
     end
    end
-  
   end
  end
 end
