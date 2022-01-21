@@ -14,13 +14,36 @@ end
 
 -- update
 function _update()
- action_select()
- simple_play()
+ update_game()
 end
 
 
 -- draw
 function _draw()
+ draw_game()
+end
+
+
+
+
+
+
+
+
+-- states
+
+-- title
+
+-- game
+
+-- update game
+function update_game()
+ action_select()
+ simple_play()
+end
+
+--draw game table
+function draw_game()
  cls()
  map()
  
@@ -44,20 +67,27 @@ function _draw()
  
  -- scores
  draw_scores()
-
- 
 end
 
+
+
+-- game/round end
+
+-- tutorial
 -->8
 -- core game
 
 function init_deck()
+ -- game init
+ finish_score = 100
+
+ -- round init
  deck = {"ac", "2c", "3c", "4c", "5c", "6c", "7c", "8c", "9c", "10c", "jc", "qc", "kc",
               "ad", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "10d", "jd", "qd", "kd",
               "ah", "2h", "3h", "4h", "5h", "6h", "7h", "8h", "9h", "10h", "jh", "qh", "kh",
               "as", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s", "10s", "js", "qs", "ks"}
  
- finish_score = 100
+ 
  discard = {} -- discard pile
  round_outcome = ""
  
@@ -836,6 +866,12 @@ end
 function draw_scores()
  print("player1:"..player1.score, 75, 10, 0)
  print("player2:"..player2.score, 75, 18, 0)
+
+ if player1.turn == true then
+  print("player1", 75, 10, 8)
+ else
+  print("player2", 75, 18, 8)
+ end
 end
 -->8
 -- opponent
@@ -920,7 +956,7 @@ function end_round()
  end
  
  -- round over start new round
- if player1.score >= 100 or player2.score >= 100 then
+ if player1.score >= finish_score or player2.score >= finish_score then
   --game over
   
  else
@@ -946,6 +982,17 @@ function lay_off()
     _, d, _, _ = gin_knock_checker(meld)
     if d == 0 then -- card can be added to meld
      add(lay_offs, card)
+     -- it is possible for a second card to be added due to first card added
+     for card2 in all(deadcards2) do
+      if card2 != card then
+       add(meld, card2)
+       _, d2, _, _ = gin_knock_checker(meld)
+       if d2 == 0 then
+        add(lay_offs, card2)
+       end
+       del(meld, card2)
+      end
+     end
     end
     del(meld, card)
    end
@@ -958,17 +1005,48 @@ function lay_off()
     _, d, _, _ = gin_knock_checker(meld)
     if d == 0 then
      add(lay_offs, card)
+     -- it is possible for a second card to be added due to first card added
+     for card2 in all(deadcards1) do
+      if card2 != card then
+       add(meld, card2)
+       _, d2, _, _ = gin_knock_checker(meld)
+       if d2 == 0 then
+        add(lay_offs, card2)
+       end
+       del(meld, card2)
+      end
+     end
     end
     del(meld, card)
    end
   end
  end
  
- return lay_offs, count_deadwood(lay_offs)
+ -- possibility of duplicates
+ local no_dup_lay_offs = remove_duplicates(lay_offs)
+ 
+ return no_dup_lay_offs, count_deadwood(no_dup_lay_offs)
 end
 
 
-
+-- remove duplicates from table
+function remove_duplicates(tab)
+ local t = {}
+ add(t, tab[1])
+ for x in all(tab) do
+  is_dup = false
+  for y in all(t) do
+   if x == y then
+    is_dup = true
+   end
+  end
+  -- after loop ends
+  if not is_dup then
+   add(t, x)
+  end
+ end
+ return t
+end
 
 -->8
 -- to do
@@ -977,6 +1055,11 @@ end
 -- game states (title, init game, init round, end round, end game)
 -- how to play
 -- tutorial?
+
+
+-- title mode=0
+-- game  mode=1
+-- round/game end mode=2
 
 __gfx__
 00000000333333332222222299999999222222227777777722222333000000000077777777777777777777777777770000005555555555555555555000000000
