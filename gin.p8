@@ -6,21 +6,35 @@ __lua__
 -- init
 function _init()
  col_change()
- init_game()
- --init_title()
+ init_title()
 end
 
 
 -- update
 function _update()
- update_game()
+ if mode == 0 then
+  update_title()
+ elseif mode == 1 then
+  update_game()
+ elseif mode == 2 then
+  update_round_end() -- not implemented
+ else
+  update_game_end() -- not implemented
+ end
 end
 
 
 -- draw
 function _draw()
- draw_game()
- --draw_title()
+ if mode == 0 then
+  draw_title()
+ elseif mode == 1 then
+  draw_game()
+ elseif mode == 2 then
+  draw_round_end()
+ else
+  draw_game_end()
+ end
 end
 
 
@@ -35,17 +49,27 @@ end
 -- title
 function init_title()
  initglobal()
+ mode = 0
 end
 
 function draw_title()
  draw_title_screen()
+ print("hold ❎ to start", 30, 110, 7)
 end
--- game
 
--- init game
+function update_title()
+ if btn(5) then
+  init_game()
+ end
+end
+
+
+
+-- game
 
 -- init new game
 function init_game()
+ mode = 1
  finish_score = 100
  player1 = {}
  player2 = {}
@@ -100,6 +124,7 @@ end
 function update_game()
  action_select()
  simple_play()
+ --medium_play()
 end
 
 --draw game table
@@ -131,7 +156,12 @@ end
 
 
 
--- game/round end
+
+-- round end
+
+
+-- game end
+
 
 -- tutorial
 -->8
@@ -325,6 +355,19 @@ function action_select()
 end
 -->8
 --deadwood calculator
+
+-- find largest valued card
+function max_card(tab)
+ local cur = 0
+ local max_c = ""
+ for card in all(tab) do
+  if card_value(card) > cur then
+   cur = card_value(card)
+   max_c = card
+  end
+ end
+ return max_c
+end
 
 -- copy table
 function copy_table(tab)
@@ -920,6 +963,46 @@ end
 
 
 -- medium play
+function medium_play()
+ if not player1.turn then
+  
+  player2.wait_time += 1
+  if player2.wait_time == 1 then player2.sp = 192 end
+  if player2.wait_time == 50 then
+   -- if discard card is useful take it
+   _, _, _, d1 = gin_knock_checker(player2.hand)
+   add(player2.hand,discard[#discard])
+   _, _, _, d2 = gin_knock_checker(player2.hand)
+   if #d2 < #d1+1 then -- the added card was not a deadwood
+    del(discard, discard[#discard])
+   else
+    add(player2.hand, draw_card())
+   end
+   player2.phrase = "done!"
+  end
+  if player2.wait_time == 70 then
+   player2.sp = 204
+  end
+  if player2.wait_time == 100 then
+   _, d_val, _, d = gin_knock_checker(player2.hand)
+   -- find largest card in set
+   if d_val > 0 then
+    local max_c = max_card(d)
+    del(player2.hand, largest_deadwood)
+    add(discard, largest_deadwood)
+   end
+   _,d_val,_,_ = gin_knock_checker(player2.hand)
+   if d_val<10 then
+    player1.knocker = false
+    end_round()
+   end
+   player2.sp = 204
+   player1.turn = true
+   player2.wait_time = 0
+   player2.phrase = "hmm.."
+  end
+ end
+end
 
 
 -- advanced play
