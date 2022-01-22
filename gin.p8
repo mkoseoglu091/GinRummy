@@ -7,6 +7,7 @@ __lua__
 function _init()
  col_change()
  init_game()
+ --init_title()
 end
 
 
@@ -19,6 +20,7 @@ end
 -- draw
 function _draw()
  draw_game()
+ --draw_title()
 end
 
 
@@ -31,7 +33,13 @@ end
 -- states
 
 -- title
+function init_title()
+ initglobal()
+end
 
+function draw_title()
+ draw_title_screen()
+end
 -- game
 
 -- init game
@@ -1069,6 +1077,141 @@ end
 -- title mode=0
 -- game  mode=1
 -- round/game end mode=2
+
+
+
+
+-- image compressor for title screen
+
+-- main program ---------------
+function draw_title_screen()
+ cls()
+ --info()
+ t="/b'f=l=tum/bg.=luuuu/b5.=luu[3wm/be.=lsuu3{3{u/b4.=lu3{3{3wm=l=l=l=tuu{3{3{3{u/b2.=l=tu3{3{3{3wm=l=luu[/be.3{u/b1.=lsu[/bd.3{3[l=tu/bf.3{3wm/bz.=lsu/bf.{3uu[/bg.3{3[/by.l=luu/be.{3wuu/bi.3{3[/bx.l=lu/be.3{uuu/bj.{3{u=l=l=luuum/br.=l=tu/be.3{u[/bl.3{/af.u3{3wu/bq.=lsu[/be.3{3[/bj.3{3uuuuu/be.3{u/bp.=lsu/bf.{3w/bh.3{3uuuuu/bg.3{3wm/bo.=lsu/bf.{3{u{3g=/be.{3uuu/bj.3{3wm/bn.=lsu/bg.{3w3{3l=,3{3{3{3u/bl.3{3[/bn.l=t/bh.{3[3g=l=,3{3{3w/bm.3{u/bn.=l[/bh.3{u{3l=l=,3{3{3[3{3:/bj.3{3wm/bm.=l=t{3{u[/be.3{3w3g=l=l={3{3{u{3{):/bj.3{3[/bm.l=ls3{3wuuu[/bd.3{3[3l=l=,3{3{3[3{(:):/bj.3{3[/bm.l=ls3{uuuuu[/bd.3{u{3l=l={3{3{u{3{):):/bj.3{u/bn.=l[3wuuuuu/bd.{3{u{3g=,3{3{3w3{3{):):4/bi.{3wm/bm.=l=t{/af.u3{3{3{u{3w3{3{-{3{3{3[3{):):):4{/ay.u[/bi.l=ls3wuuuuu[3{3{3wu[3[/be.3{u{(:):):):3[/bl.3{3[/bi.l=l[3uuuu/bd.{3uuuu[/bd.3{3w3{):):(:4w/bm.3{3[/bi.l=l[3uuwu{3{3{3wuuuuu/be.{323{):({3{3[3{7h4{7h4/bh.{3{u/bi.=l=t{3{3wu{3{3{3/af.u{/bd.3{-[3{3{):3{v{3h8h4h8h4/bh.{3wm/bi.=l=t{3{u[3{3{3w/af.u3/bd.{3lw{3{(:3{)13g/bd.8h4/bh.{3[/bi.l=ls/be.3{/ag.u[/bd.3{-23{3{3{(:)[3g8h8h8h8/bh.{3{u/bj.=ls/bd.3{3w/ag.u[3{3{3{3l=[3{3{3{):v{3g8h8h8}/bh.3{3wm/bj.=l[/bd.3{/ai.u{3{3{3{-lw{3{3{3:)13{3g8h8h4/bi.{3[/bj.l=l[3{3{3{3/ai.u3{3{3{3g=23{3{3{):)[3{3g8h8/bi.{3{u/bj.=l=t{3{3{3{/aj.u3{3{3{-l=23{3{3:):v{3{3g8}/bi.3{3wm/bj.=l=t{3{3{3/af.ueqdqdq{3{3g=l=[3{3{(:)13{3{3g4/bj.{3[/bj.l=ls3{3{3wuuuuudq0^^^jqdq+-l=lw{3{3{(:)[/bm.3{u/bk.=l[3{3{3uuuqdq/ai.^rd=l=23{3{3{):v/bm.{3wm/bk.=l[3{3wuuqd%/ak.^rd-l=[3{3{3{(1/bm.3{3[/bk.l=t{3{3uqd%/af.^y@y@^^^^d-lw{3{(:):([/bm.3{u/bk.=l=t{3{ud%^^^^^@y@y@y@^^^^d-lw{3:):):u/bm.{3wm/bk.=ls3{3gq/af.^yrdqdqt^^^^^d=23{):):)13{3{3{7h8h4{3{3{3h8h8{3{3{3[/bk.l=ls3{q0^^^^^z@duuuuq0^^^^rl=[3:):):)[3{3{3h8h8h4{3{3g8h8h8{3{3{u/bl.=l[3d%^^^^^@iquuuu[q^^^^j-lw{(:):):v{3{3g8h8h8h4{3{7h8h8h8{3{3wm/bl.=leq/af.^jqtuuuuue%^^^^+-23:):):)[3{3{7h8h8h8h4{3/bd.h8{3{3[/bl.l=t0/af.^rtuuuwuuu0^^^zr{-[(:):):v{3{3/bd.h8h4g/bd.8h8{3{u/bl.=lcq/af.^juuu[3uud%^^^^i3{u{):):)13{3{7/bi.h8h4{3wm/bl.=l0/af.^rtuu3{ueq^^^^z@+3{u:):):)[3{3g/bi.8h8}3{3[/bk.l=lcq/af.^duu3{3wut@^^^@iq{3w3:):):v{3{3/bj.h8{3{u/bl.=l0/af.^r{3{3{3uqy@^^y@+3{3[(:):)13{3{7/bi.h8h4{3wm/bk.=lcq/af.^d3{3{3wueqy@y@dq{3{udq:):)[3{3g/bi.8h8}3{3[/bk.l=lt/af.^r/bd.{3gqdqdq{3{3dqjq+):v{3{3/bj.h8{3{u/bk.=l=p%^^^^^j/be.3{3[3{3{3gq^^^r+)13{3{7/bi.h8h4{3wm/bk.=ld!/af.^+/be.3{3[3{3{q0^^^^r:)[3{3{7/bi.h8{3{3[/bk.l=p%^^^^^jq/bd.{3dqdqdqd3g!^^^^i3{u{3{3g/bi.8h4{3wm/bk.=lc!/af.^+/bd.3{q^^^^^@+3t@^^^@+3w3{3{3g/bh.8h8{3{3[/bk.l=lt/af.^r/bd.{3g%^^^^zr{qy@^^yr{3[3{3{3g/bg.8h8}3{3{u/bk.=l=p%^^^^^j/bd.3{q0^^^^@d3g!y@y@d3{u{3{3{3g/bg.8h4{3{3wm/bk.=ld!/af.^+3{3{3{3g%^^^^zr{3dqy@iq{3w3{3{3{q+7/be.h8h4{3{3{3[/bk.l=py/af.^r{3{3{3{q0^^^^^i3{qdqdqd3{qe/bd.qd3/bd.h8h4{3{3{3{u/bk.=lc!%^^^^^j3{3{3{3g%^^^^^@+3d%^^^@+3d%^^jq^^^^d3g8h8h8h4/bd.{3wm/bk.=lt@/af.^d3{3{3{q0^^^^^iq{q^^^^zr{q^^^^0^^^^^d3g8h8h8/be.{3[/bk.l=pt/ag.^+3{3{3g%^^^^^@+3g%^^^@d3g%/aj.^+3g8h8}/be.3{u/bk.=l=p%/af.^r{3{3{30^^^^^zr{30^^^zr{30^^^^@^^^^^r+3g8h4/be.{3wm/bk.=lc!%^^^^^jq{3{3gq/af.^i3gq^^^^i3gq^^^^y@^^^^zr{3g8/bf.{3[/bk.l=ld!/af.^j3{3{q0/af.^r+30^^^z@+30^^^zrt^^^^^i/bh.3{u/bl.=lt@/af.^d3{qd%/af.^iuwq^^^^iq{q^^^^iq%^^^^@+/bg.3{3wm/bk.=l=py/ag.^dqd%/ag.^@tud%^^^@+3d%^^zrd!^^^^yr/bh.{3[/bk.l=lcqy/aq.^jq=p^^^^zr{q^^^^d3t^^^^@d/bh.3{u/bl.=lc!%/ak.^%^^^^^+lc%^^^^d3g%^^^rgq%^^^zr/bh.{3wm/bl.=ld!%/ai.^yr^^^^zr=l0^^^^r{30^^^j3t@^^^@i/bh.3{3[/bl.l=ld!y/ag.^z@d%^^^^imcq^^^^i3gq^^^r+q%^^^zr+/bh.3{u/bm.=ldqy@^^^^z@yr^^^^^r+lt^^^^@tu0^^^j3d!^^^^i/bf.3{7{3{3wm/bm.=lcqt@y@y@yrd%^^^^im=p%^^^zr=p^^^^+qy^^^^@+/be.3{3h8{3{3[/bn.l=pd!y@yrdm0^^^^@+lc!^^^^imd%^^^rg!%^^^zr/be.{3g8h8{3{u/bn.=lcqdqdqdmcq^^^^jq=lt^^^^@dq^^^^j3t@^^^^jq+/bd.3{7h8h8{3wm/bm.=l=p0^^^dq=l0^^^^^+l=p%/aj.^@+qy/af.^r+3{3{3{3h8h8h8{3[/bm.l=ld%^^^^jq+p^^^^^r=lcq%/ai.^jqg!y^^^^^yr{3{3{3g8h8h8h8{u/bm.=lcq/ag.^rc%^^^^jm=lc!%^^^zr^^^@+3t@%^^^z@i3{3{3{7/bd.h8wm/bl.=l=p0/ag.^jq0^^^^r+l=ld!%^y@d%^^yr{qt@%^z@yr+3{3{3{7h8}7h8}3[/bl.l=lc%^^^^y@%^i%^^^^jm=l=ld!y@dqt@y@iuuqt@y@y@d/bd.3{7h4{7h4wm/bl.=l=p0^^^z@y@y@0^^^^^+l=l=ldqdqcqdqdq+l=pd!y@/ah.u[3{3{3{3wu/bm.=lc!^^^@y@d!yr^^^^jqdqdq+/bg.l=ldqdq/bd.=l/ah.u=/bm.l=lt^^^yrdqdqd%^^^@+pdqdq+/b5.l=p%^^^im=lcq^^^^iq=p+lcq/b5.=lc!^^^@+l=ld%^^^@+lcq=ldm/b5.=lt@^^zr=lcq^^^^yr=ldm=p+pdmcq+pdqdqdq=pdqdqdq=pdqcqdm/bp.=l=py^^^jm=p0^^^z@dm=pdqdqcq+ldqcqdqdqdqcqdqdqdqcqdmdq+/bp.l=lc!y^^^dqd%^^^@iq=lcqdq+lcq=ldmcq=p+ldmcq=p+ldmcq=ldm/bq.=ld!y/ai.^y@+l=ldqdm=ldm=p+ldmcq=p+ldmcq=p+ldqcq+/bq.l=ld!y@/af.^y@iq=l=p+pdm=p+lcq=p+ldmcq=p+ldmcq=ldqdm/br.=ldqy@y^z@y@dq+l=lcq=pdmcq=ldmcq=p+ldmcq=p+ldm=ldq+/br.l=lcqt@y@y@dq+l=l=pdmcqdmdqdq+pdmdqcq+pdmdqcq+l=ldm/bs.=l=pdqdqdqcm=l=lcq+ldq+ldqdmcq+pdmdqcq+pdmdq=l=p+/b$.l=ldmdq/b$.=l=pdq+/b%.l=pdm/b5q=lc"
+ bit6to8(t, 24576)
+end--main()
+
+-- init global variables ------
+
+function initglobal()
+ chr6x,asc6x={},{}
+ local b6=".abcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()`~-_=+[]{};':,<>?"
+ local i,c
+  for i=0,63 do
+   c=sub(b6,i+1,i+1)
+   chr6x[i]=c asc6x[c]=i
+  end  
+ compressdepth=2
+end--initglobal()
+
+-- functions ------------------
+
+-- convert integer a to char-6
+function chr6(a)
+ local r=chr6x[a]
+ if (r=="" or r==nil) r="."
+ return r
+end--chr6(.)
+
+-- test bit #b in a
+function btst(a,b)
+local r=false
+ if (band(a,2^b)>0) r=true
+ return r
+end--btst(..)
+
+-- return asc-6 of string a
+-- from character position b
+function fnca(a,b)
+local r=asc6x[sub(a,b,b)]
+ if (r=="" or r==nil) r=0
+ return r
+end--fnca(..)
+
+-- return string a repeats of b
+function strng(a,b)
+local i,r=0,""
+ for i=1,a do
+  r=r..b
+ end
+ return r
+end--strng(..)
+
+-- convert compressed 6-bit
+-- string to 8-bit binary
+-- memory
+function bit6to8(t,m)
+local i,d,e,f,n,p=0,0,0,0,0,1
+ repeat
+  if sub(t,p,p)=="/" then
+   d=fnca(t,p+1)
+   e=fnca(t,p+2)+64*fnca(t,p+3)
+   t=sub(t,1,p-1)..strng(e,sub(t,p+4,p+4+d-1))..sub(t,p+d+4)
+   p+=d*e-1
+  end
+  p+=1
+  until p>=#t
+   p=1 d=0 e=0
+   for i=1,#t do
+    c=fnca(t,i)
+    for n=0,5 do
+     if (btst(c,n)) e+=2^d
+     d+=1
+     if (d==8) poke(m+f,e) d=0 e=0 f+=1
+  end
+ end
+end--bit6to8(..)
+
+-- convert 8-bit binary memory
+-- area to compressed 6-bit
+-- clipboard ready sourcecode
+function bit8to6clip(i,m)
+ bit8to6(i,m,0)
+end--bit8to6clip(...)
+
+-- convert 8-bit binary memory
+-- area to compressed 6-bit
+-- string or save to clipboard
+function bit8to6(i,m,f)
+local j,k,l,p,n,c,t=0,0,0,0,0,0,""
+ m+=i-1
+ for j=i,m do
+  p=peek(j)
+  for k=0,7 do
+   if (btst(p,k)) c+=2^l
+    l+=1 if (l==6 or (j==m and k==7)) t=t..chr6(c) c=0 l=0
+   end
+  end
+ for i=1,compressdepth do
+  j=1
+  repeat
+   c=sub(t,j,j+i-1) d=sub(t,j,j)
+   n=0 p=j
+    if d=="/" then
+     j+=i+3
+    else
+     repeat
+      ok=1
+      if (c==sub(t,p,p+i-1)) n+=1 p+=i ok=0
+       until ok==1 or n==4095
+      end
+      if n>0 and n!=nil then
+       a="/"..chr6(i)..chr6(n%64)..chr6(flr(n/64))..c
+      if #a<i*n then
+       t=sub(t,1,j-1)..a..sub(t,j+i*n)
+       j+=#a-1
+      end
+     end
+     j+=1
+    until j>#t-i
+ end
+ if f==0 then
+  printh("t=\""..t.."\"\n","@clip")
+ else
+  return t
+ end
+end
+
 
 __gfx__
 00000000333333332222222299999999222222227777777722222333000000000077777777777777777777777777770000005555555555555555555000000000
