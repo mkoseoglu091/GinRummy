@@ -30,7 +30,6 @@ function _draw()
   draw_title()
  elseif mode == 1 then
   draw_game()
-  print(#player2.hand,0,0)
  elseif mode == 2 then
   draw_round_end()
  else
@@ -800,6 +799,9 @@ function draw_player_hand()
    spr(72, 3 + (i-1)*10, 92, 3, 4)
    spr(card_suit, 5 + (i-1)*10, 102)
    spr(card_val, 5 + (i-1)*10, 93)
+   spr(card_suit,5 + (i-1)*10 + 9, 97 + 9, 1, 1, true, true)
+   spr(card_val, 5 + (i-1)*10 + 9, 88 + 27, 1, 1, true ,true)
+  
   elseif i == player1.action and player1.on_level == 1 and player1.selected then
    --raised draw
    spr(72, 3 + (i-1)*10, 87, 3, 4)
