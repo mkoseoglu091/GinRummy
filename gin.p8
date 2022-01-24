@@ -622,7 +622,7 @@ function gin_knock_checker(hand)
  qsort(all_melds, function (a,b) return (count_deadwood(a) < count_deadwood(b)) end)
  
  if #all_melds == 0 then
-  return -1, count_deadwood(hand), {}, {}
+  return -1, count_deadwood(hand), {}, hand
  end
  
  best_score, best_melds = get_best_combination(all_melds) 
@@ -971,6 +971,7 @@ function medium_play()
   
   player2.wait_time += 1
   if player2.wait_time == 1 then player2.sp = 192 end
+  -- draw card
   if player2.wait_time == 50 then
    -- if discard card is useful take it
    _, _, _, d1 = gin_knock_checker(player2.hand)
@@ -984,14 +985,16 @@ function medium_play()
    end
    player2.phrase = "done!"
   end
+  -- discard card
   if player2.wait_time == 70 then
    player2.sp = 204
   end
   if player2.wait_time == 100 then
    _, d_val, _, d = gin_knock_checker(player2.hand)
    -- find largest card in set
-   if d_val > 0 then
+   if d_val > 0 then -- have deadwoods in hand
     local max_c = max_card(d)
+    
     del(player2.hand, max_c)
     add(discard, max_c)
    end
