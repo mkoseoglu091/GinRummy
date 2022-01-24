@@ -30,6 +30,10 @@ function _draw()
   draw_title()
  elseif mode == 1 then
   draw_game()
+  -- major problem!!!!
+  hand = {"10s", "10c", "10d", "7d", "8d", "9d", "jd", "ad", "as", "2h", "2s"}
+  a, d, _, _ = gin_knock_checker(hand)
+  -- not finding best meld combo!!!
  elseif mode == 2 then
   draw_round_end()
  else
@@ -1065,10 +1069,10 @@ function end_round()
  -- round over start new round
  if player1.score >= finish_score or player2.score >= finish_score then
   --game over
-  
+  mode = 3
  else
   --start new round
-  
+  mode = 2
  end
 end
 
@@ -1157,6 +1161,8 @@ end
 
 -->8
 -- to do
+
+-- hand = {"10s", "10c", "10d", "7d0", "8d", "9d", "jd", "ad", "as", "2h", "2s"}
 
 -- a.i. medium and advanced play
 -- game states (title, init game, init round, end round, end game)
