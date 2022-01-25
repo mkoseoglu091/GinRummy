@@ -179,9 +179,9 @@ function draw_round_end()
  
   -- draw own hand
  draw_hand_end_of_round_p1()
- 
+
  -- draw opponent hand
- 
+ draw_hand_end_of_round_p2()
  
  -- draw lay_offs
  
@@ -398,6 +398,14 @@ function action_select()
 end
 -->8
 --deadwood calculator
+
+-- check if table contains element
+function contains(tab, elem)
+ for item in all(tab) do
+  if item == elem then return true end
+ end
+ return false
+end
 
 -- find largest valued card
 function max_card(tab)
@@ -993,6 +1001,7 @@ function draw_hand_end_of_round_p1()
  -- divide cards by melds and deadwoods
  local start_x = 3
  local start_y = 96
+ local lay_off_tag_start = 0
  
  for meld in all(_m) do
   for card in all(meld) do
@@ -1010,13 +1019,93 @@ function draw_hand_end_of_round_p1()
    
   end
   start_x += 5
- spr(115,4, 119)
- spr(115,12, 119)
- spr(115,16, 119)
- spr(115,20, 119)
- print("melds", 5, 120, 7)
  end
+ -- printing deadwoods
  start_y = 64
+ start_x = 3
+ if not player1.knocker then -- player1 gets to lay off cards
+  for card in all(_d) do
+   if not contains(lay_off_cards, card) then
+    card_val, card_suit = find_sprite(card)
+    spr(64, start_x, start_y, 3, 4)
+    spr(card_suit, start_x+2, start_y+10)
+    spr(card_val, start_x+2, start_y+1)
+    --upside draw
+    spr(card_suit,start_x+11, start_y+14, 1, 1, true, true)
+    spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
+    start_x+=10
+   end
+  end
+  start_x += 10
+  lay_off_tag_start = start_x + 1
+  for lay in all(lay_off_cards) do
+   card_val, card_suit = find_sprite(lay)
+   spr(64, start_x, start_y, 3, 4)
+   spr(card_suit, start_x+2, start_y+10)
+   spr(card_val, start_x+2, start_y+1)
+   --upside draw
+   spr(card_suit,start_x+11, start_y+14, 1, 1, true, true)
+   spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
+   start_x+=10
+  end
+ else
+  for card in all(_d) do
+   card_val, card_suit = find_sprite(card)
+   spr(64, start_x, start_y, 3, 4)
+   spr(card_suit, start_x+2, start_y+10)
+   spr(card_val, start_x+2, start_y+1)
+   --upside draw
+   spr(card_suit,start_x+11, start_y+14, 1, 1, true, true)
+   spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
+   start_x+=10
+  end
+ end
+ 
+ -- card tags
+ for i=1, 5 do
+  spr(115,i*8-4, 119)
+ end
+ print("p1 melds", 5, 120, 7)
+ for i=1, 7 do
+  spr(115,i*8-4, 87)
+ end
+ print("p1 deadwoods", 5, 88, 7)
+ if not player1.knocker and #lay_off_cards > 0 then
+  for i=1, 6 do
+   spr(115,lay_off_tag_start+i*8-8, 87)
+  end
+  print("p1 lay off", lay_off_tag_start, 88)
+ end
+end
+
+
+-- draw player2 hand
+function draw_hand_end_of_round_p2()
+ -- which hand to draw
+ _, _, _m, _d = gin_knock_checker(player2.hand_copy)
+ 
+ -- divide cards by melds and deadwoods
+ local start_x = 3
+ local start_y = 0
+ 
+ for meld in all(_m) do
+  for card in all(meld) do
+   
+   card_val, card_suit = find_sprite(card)
+
+   --normal draw
+   spr(64, start_x, start_y, 3, 4)
+   spr(card_suit, start_x+2, start_y+10)
+   spr(card_val, start_x+2, start_y+1)
+   --upside draw
+   spr(card_suit,start_x+11, start_y+14, 1, 1, true, true)
+   spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
+   start_x += 10
+   
+  end
+  start_x += 5
+ end
+ start_y = 32
  start_x = 3
  for card in all(_d) do
   card_val, card_suit = find_sprite(card)
@@ -1028,16 +1117,18 @@ function draw_hand_end_of_round_p1()
   spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
   start_x+=10
  end
- spr(115,4, 87)
- spr(115,12, 87)
- spr(115,16, 87)
- spr(115,20, 87)
- spr(115,24, 87)
- spr(115,28, 87)
- spr(115,32, 87)
- spr(115,36, 87)
- print("deadwoods", 5, 88, 7)
+ 
+ -- card tags
+ for i=1, 5 do
+ spr(115,i*8-4, 23)
+ end
+ print("p2 melds", 5, 24, 7)
+ for i=1, 7 do
+ spr(115,i*8-4, 55)
+ end
+ print("p2 deadwoods", 5, 56, 7)
 end
+
 
 -->8
 -- opponent
