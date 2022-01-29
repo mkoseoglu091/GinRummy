@@ -101,6 +101,7 @@ function init_deck()
  
  discard = {} -- discard pile
  round_outcome = ""
+ round_score = 0
  
  -- player variables
  player1.hand = {}
@@ -184,11 +185,8 @@ function draw_round_end()
  -- draw opponent hand
  draw_hand_end_of_round_p2()
  
- -- draw lay_offs
- 
- 
  -- announce result (gin/knock/undercut +points +winner)
- 
+ draw_round_results()
  
  -- draw scores?
  
@@ -1088,6 +1086,7 @@ function draw_hand_end_of_round_p2()
  -- divide cards by melds and deadwoods
  local start_x = 3
  local start_y = 0
+ local lay_off_tag_start = 0
  
  for meld in all(_m) do
   for card in all(meld) do
@@ -1108,16 +1107,46 @@ function draw_hand_end_of_round_p2()
  end
  start_y = 32
  start_x = 3
- for card in all(_d) do
-  card_val, card_suit = find_sprite(card)
-  spr(64, start_x, start_y, 3, 4)
-  spr(card_suit, start_x+2, start_y+10)
-  spr(card_val, start_x+2, start_y+1)
-  --upside draw
-  spr(card_suit,start_x+11, start_y+14, 1, 1, true, true)
-  spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
-  start_x+=10
+ if player1.knocker then -- player 2 gets to lay off cards
+  for card in all(_d) do
+   if not contains(lay_off_cards, card) then
+    card_val, card_suit = find_sprite(card)
+    spr(64, start_x, start_y, 3, 4)
+    spr(card_suit, start_x+2, start_y+10)
+    spr(card_val, start_x+2, start_y+1)
+    --upside draw
+    spr(card_suit,start_x+11, start_y+14, 1, 1, true, true)
+    spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
+    start_x+=10
+   end
+  end
+  
+  start_x += 10
+  lay_off_tag_start = start_x + 1
+  for lay in all(lay_off_cards) do
+   card_val, card_suit = find_sprite(lay)
+   spr(64, start_x, start_y, 3, 4)
+   spr(card_suit, start_x+2, start_y+10)
+   spr(card_val, start_x+2, start_y+1)
+   --upside draw
+   spr(card_suit,start_x+11, start_y+14, 1, 1, true, true)
+   spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
+   start_x+=10
+  end
+ else
+  for card in all(_d) do
+   card_val, card_suit = find_sprite(card)
+   spr(64, start_x, start_y, 3, 4)
+   spr(card_suit, start_x+2, start_y+10)
+   spr(card_val, start_x+2, start_y+1)
+   --upside draw
+   spr(card_suit,start_x+11, start_y+14, 1, 1, true, true)
+   spr(card_val, start_x+11, start_y+23, 1, 1, true ,true)
+   start_x+=10
+  end
  end
+ 
+ 
  
  -- card tags
  for i=1, 5 do
@@ -1128,9 +1157,32 @@ function draw_hand_end_of_round_p2()
  spr(115,i*8-4, 55)
  end
  print("p2 deadwoods", 5, 56, 7)
+ if player1.knocker and #lay_off_cards > 0 then
+  for i=1, 6 do
+   spr(115,lay_off_tag_start+i*8-8, 55)
+  end
+  print("p1 lay off", lay_off_tag_start, 56)
+ end
+
 end
 
 
+
+-- draw round end results
+function draw_round_results()
+ local x = 82
+ local y = 0
+ if player1.knocker then
+  y = 66
+ else
+  y = 42
+ end
+ print(round_outcome, x, y, 0)
+ y += 7
+ print(round_score.." points!", x, y, 0)
+ y += 7
+ print("press ❎", x, y, 0)
+end
 -->8
 -- opponent
 
@@ -1217,19 +1269,19 @@ function end_round()
  player1.hand_copy = copy_table(player1.hand)
  player2.hand_copy = copy_table(player2.hand)
  
- score1, deadwood1, melds1, deadcards1 = gin_knock_checker(player1.hand)
- score2, deadwood2, melds2, deadcards2 = gin_knock_checker(player2.hand)
+ local score1, deadwood1, melds1, deadcards1 = gin_knock_checker(player1.hand)
+ local score2, deadwood2, melds2, deadcards2 = gin_knock_checker(player2.hand)
 
  -- gin?
  if player1.knocker and deadwood1 == 0 then
-  player1.score += 25
-  player1.score += deadwood2
-  round_outcome = "gin! player 1 wins!"
+  round_score = 25 + deadwood2
+  player1.score += round_score
+  round_outcome = "p1 gin!"
   init_round_end()
  elseif not player1.knocker and deadwood2 == 0 then
-  player2.score += 25
-  player2.score += deadwood1
-  round_outcome = "gin! player 2 wins!"
+  round_score = 25 + deadwood1
+  player2.score += round_score
+  round_outcome = "p2 gin!"
   init_round_end()
  end
  
@@ -1241,23 +1293,25 @@ function end_round()
  if player1.knocker then
   if (deadwood2 - lay_score) < deadwood1 then
    -- undercut!
-   player2.score += 25 --undercut bonus
-   player2.score += (deadwood1 - (deadwood2 - lay_score))
-   round_outcome = "undercut! player 2 wins!"
+   round_score = 25 + (deadwood1 - (deadwood2 - lay_score))
+   player2.score += round_score 
+   round_outcome = "p2 undercut!"
   else -- regular knock
-   player1.score += ((deadwood2 - lay_score) - deadwood1)
-   round_outcome = "knock! player 1 wins!"
+   round_score = ((deadwood2 - lay_score) - deadwood1)
+   player1.score += round_score
+   round_outcome = "p1 knock!"
   end
   
  else
   if (deadwood1 - lay_score) < deadwood2 then
    -- undercut!
-   player1.score += 25 --undercut bonus
-   player1.score += (deadwood2 - (deadwood1 - lay_score))
-   round_outcome = "undercut! player 1 wins!"
+   round_score = 25 + (deadwood2 - (deadwood1 - lay_score))
+   player1.score += round_score
+   round_outcome = "p1 undercut!"
   else -- regular knock
-   player2.score += ((deadwood1 - lay_score) - deadwood2)
-   round_outcome = "knock! player 2 wins!"
+   ruond_score = ((deadwood1 - lay_score) - deadwood2)
+   player2.score += round_score
+   round_outcome = "p2 knock!"
   end
  end
  init_round_end()
@@ -1352,6 +1406,10 @@ end
 -- to do
 
 -- hand = {"10s", "10c", "10d", "7d0", "8d", "9d", "jd", "ad", "as", "2h", "2s"}
+
+-- p2 knock point bug - no points given to p2 knock
+-- end of game - start new game
+-- when p2 knocks/gins make player say it, wiat, then go to score screen
 
 -- a.i. medium and advanced play
 -- game states (title, init game, init round, end round, end game)
@@ -1633,9 +1691,9 @@ __map__
 22028dadaeaf8f02200101010101010100000101010101010101010101010101010100000001010101010101010101303434343432000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 22028ebdbebf8e02200101010101010100000101010101010101010101010101010100000001010101010101010101360505050537000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 2202020202020202200101010101010100000101010101010101010101010101010100000001010101010101010101313535353533000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-2421212121212121250101010101010100000101010101010101013034343434320100000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0101010101010101010101010101010100000101010101010101013605050505370100000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0101010101010101010101010101010100000101010101010101013135353535330100000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+2421212121212121250101010101010100000101010101010101010130343434343200000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0101010101010101010101010101010100000101010101010101010136050505053700000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0101010101010101010101010101010100000101010101010101010131353535353300000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0101010101010101010101010101010100000101010101010101010101010101010100000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0101010101010101010101010101010100000101010101010101010101010101010100000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0101010101010101010101010101010100000101010101010101010101010101010100000001010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
