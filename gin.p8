@@ -187,14 +187,10 @@ function draw_round_end()
  
  -- announce result (gin/knock/undercut +points +winner)
  draw_round_results()
- 
- -- draw scores?
- 
- 
- -- press x to start next round
-
 
 end
+
+
 
 function update_round_end()
  wait_time += 1
@@ -1269,8 +1265,8 @@ function end_round()
  player1.hand_copy = copy_table(player1.hand)
  player2.hand_copy = copy_table(player2.hand)
  
- local score1, deadwood1, melds1, deadcards1 = gin_knock_checker(player1.hand)
- local score2, deadwood2, melds2, deadcards2 = gin_knock_checker(player2.hand)
+ score1, deadwood1, melds1, deadcards1 = gin_knock_checker(player1.hand)
+ score2, deadwood2, melds2, deadcards2 = gin_knock_checker(player2.hand)
 
  -- gin?
  if player1.knocker and deadwood1 == 0 then
@@ -1295,7 +1291,7 @@ function end_round()
    -- undercut!
    round_score = 25 + (deadwood1 - (deadwood2 - lay_score))
    player2.score += round_score 
-   round_outcome = "p2 undercut!"
+   round_outcome = "p2 undercut"
   else -- regular knock
    round_score = ((deadwood2 - lay_score) - deadwood1)
    player1.score += round_score
@@ -1307,9 +1303,9 @@ function end_round()
    -- undercut!
    round_score = 25 + (deadwood2 - (deadwood1 - lay_score))
    player1.score += round_score
-   round_outcome = "p1 undercut!"
+   round_outcome = "p1 undercut"
   else -- regular knock
-   ruond_score = ((deadwood1 - lay_score) - deadwood2)
+   round_score = deadwood1 - lay_score - deadwood2
    player2.score += round_score
    round_outcome = "p2 knock!"
   end
@@ -1407,7 +1403,6 @@ end
 
 -- hand = {"10s", "10c", "10d", "7d0", "8d", "9d", "jd", "ad", "as", "2h", "2s"}
 
--- p2 knock point bug - no points given to p2 knock
 -- end of game - start new game
 -- when p2 knocks/gins make player say it, wiat, then go to score screen
 
@@ -1415,7 +1410,6 @@ end
 -- game states (title, init game, init round, end round, end game)
 -- how to play
 -- tutorial?
-
 
 -- title mode=0
 -- game  mode=1
