@@ -306,7 +306,7 @@ end
 
 function draw_how_to2()
  cls()
- map(93)
+ map(92)
  print("press ❎ to continue", 1, 1, 0)
  print("when you have a combined", 4, 10, 0)
  print("deadwood value of 10 or less", 4, 16, 0)
