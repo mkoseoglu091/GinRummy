@@ -25,8 +25,10 @@ function _update()
   update_how_to1()
  elseif mode == 5 then
   update_how_to2()
- else
+ elseif mode == 6 then
   update_how_to3()
+ else
+  update_no_winner()
  end
 end
 
@@ -45,8 +47,10 @@ function _draw()
   draw_how_to1()
  elseif mode == 5 then
   draw_how_to2()
- else
+ elseif mode == 6 then
   draw_how_to3()
+ else
+  draw_no_winner()
  end
 end
 
@@ -150,9 +154,13 @@ end
 
 -- update game
 function update_game()
+ if #deck <= 2 then -- draw!
+  mode = 7
+ end
  action_select()
  --simple_play()
- medium_play()
+ --medium_play()
+ hard_play()
 end
 
 --draw game table
@@ -180,6 +188,7 @@ function draw_game()
  
  -- scores
  draw_scores()
+ 
 end
 
 
@@ -339,6 +348,22 @@ end
 
 function update_how_to3()
  if btnp(5) then mode = prev_mode end
+end
+
+
+-- no winner
+function update_no_winner()
+ if btnp(5) then init_round() end
+end
+
+
+function draw_no_winner()
+ cls()
+ map(110)
+ print("    draw pile has", 20, 20, 0)
+ print("    2 cars left..", 20, 26, 0)
+ print("  game ends in draw", 20, 45, 0)
+ print("press ❎ to start new round", 10, 90, 0)
 end
 -->8
 -- deck helpers + player action
@@ -1359,7 +1384,8 @@ function medium_play()
    _, _, _, d1 = gin_knock_checker(player2.hand)
    add(player2.hand,discard[#discard])
    _, _, _, d2 = gin_knock_checker(player2.hand)
-   if #d2 < #d1+1 then -- the added card was not a deadwood
+   
+   if count_deadwood(d2) < count_deadwood(d1) then -- the added card was not a deadwood
     del(discard, discard[#discard])
    else
     del(player2.hand, discard[#discard])
@@ -1373,6 +1399,8 @@ function medium_play()
     
     del(player2.hand, max_c)
     add(discard, max_c)
+   else
+    end_round()
    end
    _,d_val,_,_ = gin_knock_checker(player2.hand)
    
@@ -1395,6 +1423,91 @@ function medium_play()
     player1.knocker = false
     end_round()
    end
+   player2.sp = 204
+   player1.turn = true
+   player2.wait_time = 0
+   player2.phrase = "hmm.."
+  end
+ end
+end
+
+
+-- medium play with gin ability
+-- look at how many cards remain in deck
+-- wait for gin or know when to knock
+function hard_play()
+ if not player1.turn then
+  
+  player2.wait_time += 1
+  if player2.wait_time == 1 then player2.sp = 192 end
+  -- draw card
+  if player2.wait_time == 50 then
+   -- if discard card is useful take it
+   _, _, _, d1 = gin_knock_checker(player2.hand)
+   add(player2.hand,discard[#discard])
+   _, _, _, d2 = gin_knock_checker(player2.hand)
+   
+   if count_deadwood(d2) < count_deadwood(d1) then -- the added card was not a deadwood
+    del(discard, discard[#discard])
+   else
+    del(player2.hand, discard[#discard])
+    add(player2.hand, draw_card())
+   end
+   
+   _, d_val, _, d = gin_knock_checker(player2.hand)
+   -- find largest card in set
+   if d_val > 0 then -- have deadwoods in hand
+    local max_c = max_card(d)
+    
+    del(player2.hand, max_c)
+    add(discard, max_c)
+   else
+    end_round() -- gin
+   end
+   _,d_val,_,_ = gin_knock_checker(player2.hand)
+   
+   -- when to knock, when to wait for gin
+   if d_val < 10 and #deck >24 then
+    player2.phrase = "knock"
+   elseif d_val < 8 and #deck <= 24 and #deck > 18 then
+    player2.phrase = "knock"
+   elseif d_val < 3 and #deck <= 18 and #deck > 12 then
+    player2.phrase = "knock"
+   elseif d_val == 0 then
+    player2.phrase = "gin!"
+   else
+    player2.phrase = "done!"
+   end
+   
+   
+  end
+  -- discard card
+  if player2.wait_time == 70 then
+   if player2.phrase == "knock" or player2.phrase == "gin!" then
+    player2.sp = 200
+   else
+    player2.sp = 204
+   end
+  end
+  
+  
+  if player2.wait_time == 100 then
+   
+   -- when to knock, when to wait for gin
+   if d_val < 10 and #deck >24 then
+    player1.knocker = false
+    end_round()
+   elseif d_val < 8 and #deck <= 24 and #deck > 18 then
+    player1.knocker = false
+    end_round()
+   elseif d_val < 3 and #deck <= 18 and #deck > 12 then
+    player1.knocker = false
+    end_round()
+   elseif d_val == 0 then
+    player1.knocker = false
+    end_round()
+   end
+   
    player2.sp = 204
    player1.turn = true
    player2.wait_time = 0
@@ -1547,14 +1660,6 @@ end
 
 -->8
 -- image compress
-
--- to do
-
--- hand = {"10s", "10c", "10d", "7d0", "8d", "9d", "jd", "ad", "as", "2h", "2s"}
-
--- a.i. medium and advanced play
-
-
 
 -- image compressor for title screen
 
