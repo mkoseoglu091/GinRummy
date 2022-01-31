@@ -1549,7 +1549,7 @@ function end_round()
  
  -- check undercut / knock
  if player1.knocker then
-  if (deadwood2 - lay_score) < deadwood1 then
+  if (deadwood2 - lay_score) <= deadwood1 then
    -- undercut!
    round_score = 25 + (deadwood1 - (deadwood2 - lay_score))
    player2.score += round_score 
@@ -1561,7 +1561,7 @@ function end_round()
   end
   
  else
-  if (deadwood1 - lay_score) < deadwood2 then
+  if (deadwood1 - lay_score) <= deadwood2 then
    -- undercut!
    round_score = 25 + (deadwood2 - (deadwood1 - lay_score))
    player1.score += round_score
