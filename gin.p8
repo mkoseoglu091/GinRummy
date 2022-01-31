@@ -95,7 +95,7 @@ function init_game()
  player1.score = 0
  player2.score = 0
  init_round()
- 
+  
 end
 
 -- initialise new round
@@ -155,7 +155,7 @@ end
 -- update game
 function update_game()
  if #deck <= 2 then -- draw!
-  mode = 7
+  init_no_winner()
  end
  action_select()
  --simple_play()
@@ -188,7 +188,7 @@ function draw_game()
  
  -- scores
  draw_scores()
- 
+
 end
 
 
@@ -278,7 +278,7 @@ end
 function draw_how_to1()
  cls()
  map(73)
- print("press x to continue", 1, 1, 0)
+ print("press ❎ to continue", 1, 1, 0)
  print("in gin you try to", 50, 10, 0)
  print("form melds, or sets.", 50, 16, 0)
  print("melds are at least", 50, 22, 0)
@@ -307,7 +307,7 @@ end
 function draw_how_to2()
  cls()
  map(93)
- print("press x to continue", 1, 1, 0)
+ print("press ❎ to continue", 1, 1, 0)
  print("when you have a combined", 4, 10, 0)
  print("deadwood value of 10 or less", 4, 16, 0)
  print("you can knock! this scores", 4, 22, 0)
@@ -331,7 +331,7 @@ end
 function draw_how_to3()
  cls()
  map(110)
- print("press x to exit", 1, 1, 0)
+ print("press ❎ to exit", 1, 1, 0)
  print("if you have no deadwood", 4, 10, 0)
  print("thats called gin! your", 4, 16, 0)
  print("opponent can't lay off", 4, 22, 0)
@@ -342,6 +342,7 @@ function draw_how_to3()
  print("player reaches 100 or more", 4, 56, 0)
  print("points. that player is the", 4, 62,0)
  print("winner!!!", 4, 68, 0)
+ print("press ❎ to select cards", 4, 80, 0)
  
 end
 
@@ -352,6 +353,15 @@ end
 
 
 -- no winner
+function init_no_winner()
+ if start_player == 1 then
+  start_player = 2
+ else
+  start_player = 1
+ end
+ mode = 7
+end
+
 function update_no_winner()
  if btnp(5) then init_round() end
 end
@@ -1461,20 +1471,19 @@ function hard_play()
     
     del(player2.hand, max_c)
     add(discard, max_c)
-   else
-    end_round() -- gin
+
    end
    _,d_val,_,_ = gin_knock_checker(player2.hand)
    
    -- when to knock, when to wait for gin
-   if d_val < 10 and #deck >24 then
+   if d_val == 0 then
+    player2.phrase = "gin!"
+   elseif d_val < 10 and #deck >24 then
     player2.phrase = "knock"
    elseif d_val < 8 and #deck <= 24 and #deck > 18 then
     player2.phrase = "knock"
    elseif d_val < 3 and #deck <= 18 and #deck > 12 then
     player2.phrase = "knock"
-   elseif d_val == 0 then
-    player2.phrase = "gin!"
    else
     player2.phrase = "done!"
    end
@@ -1485,6 +1494,7 @@ function hard_play()
   if player2.wait_time == 70 then
    if player2.phrase == "knock" or player2.phrase == "gin!" then
     player2.sp = 200
+    player1.knocker = false
    else
     player2.sp = 204
    end
@@ -1494,16 +1504,16 @@ function hard_play()
   if player2.wait_time == 100 then
    
    -- when to knock, when to wait for gin
-   if d_val < 10 and #deck >24 then
+   if d_val == 0 then --gin
+    player1.knocker = false
+    end_round()
+   elseif d_val < 10 and #deck >24 then
     player1.knocker = false
     end_round()
    elseif d_val < 8 and #deck <= 24 and #deck > 18 then
     player1.knocker = false
     end_round()
    elseif d_val < 3 and #deck <= 18 and #deck > 12 then
-    player1.knocker = false
-    end_round()
-   elseif d_val == 0 then
     player1.knocker = false
     end_round()
    end
@@ -1536,43 +1546,44 @@ function end_round()
   player1.score += round_score
   round_outcome = "p1 gin!"
   init_round_end()
- elseif not player1.knocker and deadwood2 == 0 then
+ elseif (not player1.knocker) and deadwood2 == 0 then
   round_score = 25 + deadwood1
   player2.score += round_score
   round_outcome = "p2 gin!"
   init_round_end()
- end
- 
- -- check lay offs
- lay_offs, lay_score = lay_off()
- lay_off_cards = copy_table(lay_offs)
- 
- -- check undercut / knock
- if player1.knocker then
-  if (deadwood2 - lay_score) <= deadwood1 then
-   -- undercut!
-   round_score = 25 + (deadwood1 - (deadwood2 - lay_score))
-   player2.score += round_score 
-   round_outcome = "p2 undercut"
-  else -- regular knock
-   round_score = ((deadwood2 - lay_score) - deadwood1)
-   player1.score += round_score
-   round_outcome = "p1 knock!"
-  end
-  
  else
-  if (deadwood1 - lay_score) <= deadwood2 then
-   -- undercut!
-   round_score = 25 + (deadwood2 - (deadwood1 - lay_score))
-   player1.score += round_score
-   round_outcome = "p1 undercut"
-  else -- regular knock
-   round_score = deadwood1 - lay_score - deadwood2
-   player2.score += round_score
-   round_outcome = "p2 knock!"
+  
+  -- check lay offs
+  lay_offs, lay_score = lay_off()
+  lay_off_cards = copy_table(lay_offs)
+  
+  -- check undercut / knock
+  if player1.knocker then
+   if (deadwood2 - lay_score) <= deadwood1 then
+    -- undercut!
+    round_score = 25 + (deadwood1 - (deadwood2 - lay_score))
+    player2.score += round_score 
+    round_outcome = "p2 undercut"
+   else -- regular knock
+    round_score = ((deadwood2 - lay_score) - deadwood1)
+    player1.score += round_score
+    round_outcome = "p1 knock!"
+   end
+   
+  else
+   if (deadwood1 - lay_score) <= deadwood2 then
+    -- undercut!
+    round_score = 25 + (deadwood2 - (deadwood1 - lay_score))
+    player1.score += round_score
+    round_outcome = "p1 undercut"
+   else -- regular knock
+    round_score = deadwood1 - lay_score - deadwood2
+    player2.score += round_score
+    round_outcome = "p2 knock!"
+   end
   end
+  init_round_end()
  end
- init_round_end()
 end
 
 
